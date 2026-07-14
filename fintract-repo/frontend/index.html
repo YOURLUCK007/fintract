@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FinTract — AI-powered personal finance platform. Track expenses, forecast savings, get investment advice." />
+  <title>FinTract — Intelligent Finance, Beautifully Simple</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>" />
+</head>
+<body>
+  <!-- ============ LANDING ============ -->
+  <header class="landing" id="landing">
+    <nav class="lp-nav">
+      <div class="brand">
+        <span class="brand-mark">F</span><span class="brand-name">FinTract</span>
+      </div>
+      <div class="lp-links">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#security">Security</a>
+        <button class="btn btn-ghost" id="themeToggleLanding" aria-label="Toggle theme">🌙</button>
+        <button class="btn btn-primary" id="enterApp">Launch App</button>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="pill">✨ AI-powered personal finance</span>
+        <h1>Your money, <span class="grad">intelligently</span> understood.</h1>
+        <p class="lead">FinTract auto-categorizes your spending, forecasts your savings, scores your financial health, and recommends where to invest — all in one beautiful dashboard.</p>
+        <div class="hero-cta">
+          <button class="btn btn-primary btn-lg" id="enterApp2">Open Dashboard →</button>
+          <button class="btn btn-outline btn-lg" id="watchDemo">See the demo</button>
+        </div>
+        <div class="hero-trust">
+          <div><strong>0–100</strong><span>Financial Health Score</span></div>
+          <div><strong>6</strong><span>ML models</span></div>
+          <div><strong>Bank-grade</strong><span>security model</span></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="float-card fc1">
+          <span class="fc-label">Monthly savings</span>
+          <span class="fc-value up">₹24,380 ▲</span>
+          <canvas id="heroSpark" height="48"></canvas>
+        </div>
+        <div class="float-card fc2">
+          <span class="fc-label">Health score</span>
+          <div class="ring mini" data-score="78"><span>78</span></div>
+        </div>
+        <div class="float-card fc3">
+          <span class="fc-label">AI insight</span>
+          <p>You spent 31% less on dining vs last month. Nice work 🎉</p>
+        </div>
+        <div class="glow"></div>
+      </div>
+    </section>
+
+    <section class="logos">
+      <span>Built with an enterprise-grade architecture in mind</span>
+      <div class="logo-row">
+        <span>React · Next.js</span><span>FastAPI</span><span>PostgreSQL</span><span>Redis</span><span>scikit-learn · XGBoost</span><span>Docker</span>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <h2 class="section-title">Everything you need to master your money</h2>
+      <p class="section-sub">Twelve capabilities, one cohesive product experience.</p>
+      <div class="feature-grid" id="featureGrid"></div>
+    </section>
+
+    <section class="how" id="how">
+      <h2 class="section-title">How FinTract works</h2>
+      <div class="steps">
+        <div class="step"><span class="step-n">1</span><h3>Connect & import</h3><p>Add expenses manually or import CSV / PDF bank statements. ML auto-categorizes every transaction.</p></div>
+        <div class="step"><span class="step-n">2</span><h3>Analyze</h3><p>Anomaly detection, recurring-subscription radar, and trend analysis surface what matters.</p></div>
+        <div class="step"><span class="step-n">3</span><h3>Act</h3><p>Personalized savings & investment recommendations with projected outcomes and confidence ranges.</p></div>
+      </div>
+    </section>
+
+    <section class="security-band" id="security">
+      <h2 class="section-title">Security by design</h2>
+      <div class="sec-grid">
+        <div class="sec-item">🔐 JWT auth</div>
+        <div class="sec-item">🔑 OAuth login</div>
+        <div class="sec-item">#️⃣ Password hashing</div>
+        <div class="sec-item">🛡️ Data encryption</div>
+        <div class="sec-item">⏱️ Rate limiting</div>
+        <div class="sec-item">📜 Audit logs</div>
+      </div>
+    </section>
+
+    <footer class="lp-footer">
+      <div class="brand"><span class="brand-mark">F</span><span class="brand-name">FinTract</span></div>
+      <p>Educational demo. Recommendations are not guaranteed financial advice.</p>
+    </footer>
+  </header>
+
+  <!-- ============ AUTH ============ -->
+  <div class="auth-overlay hidden" id="authOverlay">
+    <div class="auth-card">
+      <button class="auth-close" id="authClose" aria-label="Close">✕</button>
+      <div class="brand auth-brand"><span class="brand-mark">F</span><span class="brand-name">FinTract</span></div>
+      <h2 id="authTitle">Welcome back</h2>
+      <p class="auth-sub" id="authSub">Log in to your dashboard.</p>
+      <form id="authForm">
+        <div class="auth-field signup-only hidden">
+          <label>Full name</label>
+          <input type="text" id="authName" placeholder="Your name" autocomplete="name" />
+        </div>
+        <div class="auth-field">
+          <label>Email</label>
+          <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" required />
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password" minlength="6" required />
+        </div>
+        <div class="auth-row signup-only hidden">
+          <div class="auth-field">
+            <label>Monthly income (₹)</label>
+            <input type="number" id="authIncome" value="95000" min="0" />
+          </div>
+          <div class="auth-field">
+            <label>Risk tolerance</label>
+            <select id="authRisk">
+              <option value="1">1 · Very safe</option>
+              <option value="2">2 · Conservative</option>
+              <option value="3" selected>3 · Balanced</option>
+              <option value="4">4 · Growth</option>
+              <option value="5">5 · Aggressive</option>
+            </select>
+          </div>
+        </div>
+        <p class="auth-error hidden" id="authError"></p>
+        <button class="btn btn-primary full btn-lg" type="submit" id="authSubmit">Log in</button>
+      </form>
+      <p class="auth-switch">
+        <span id="authSwitchText">New to FinTract?</span>
+        <a href="#" id="authSwitch">Create an account</a>
+      </p>
+      <button class="btn btn-ghost full" id="authDemo">Try the demo account</button>
+    </div>
+  </div>
+
+  <!-- ============ APP ============ -->
+  <div class="app hidden" id="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand sb-brand">
+        <span class="brand-mark">F</span><span class="brand-name">FinTract</span>
+      </div>
+      <nav class="sb-nav">
+        <button class="nav-item active" data-view="overview"><span class="ic">📊</span> Overview</button>
+        <button class="nav-item" data-view="expenses"><span class="ic">🧾</span> Expenses</button>
+        <button class="nav-item" data-view="forecast"><span class="ic">📈</span> Savings Forecast</button>
+        <button class="nav-item" data-view="invest"><span class="ic">💼</span> Investments</button>
+        <button class="nav-item" data-view="budget"><span class="ic">💰</span> Budget</button>
+        <button class="nav-item" data-view="simulator"><span class="ic">🧮</span> Simulator</button>
+        <button class="nav-item" data-view="networth"><span class="ic">📊</span> Net Worth</button>
+        <button class="nav-item" data-view="subscriptions"><span class="ic">🔁</span> Subscriptions</button>
+        <button class="nav-item" data-view="goals"><span class="ic">🎯</span> Goals</button>
+        <button class="nav-item" data-view="planner"><span class="ic">🧭</span> Planner</button>
+        <button class="nav-item" data-view="lab"><span class="ic">🎲</span> Portfolio Lab</button>
+        <button class="nav-item" data-view="twin"><span class="ic">👤</span> Financial Twin</button>
+        <button class="nav-item" data-view="achievements"><span class="ic">🏆</span> Achievements</button>
+        <button class="nav-item" data-view="reports"><span class="ic">📄</span> Reports</button>
+        <button class="nav-item" data-view="assistant"><span class="ic">🤖</span> AI Assistant</button>
+      </nav>
+      <div class="sb-foot">
+        <div class="user-chip">
+          <div class="avatar">KS</div>
+          <div><strong>Karthik S.</strong><span>Premium plan</span></div>
+        </div>
+        <button class="btn btn-ghost full" id="backHome">← Back to site</button>
+        <button class="btn btn-danger full" id="logoutBtn">🚪 Logout</button>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="topbar">
+        <button class="icon-btn" id="menuToggle" aria-label="Toggle menu">☰</button>
+        <div class="topbar-title" id="viewTitle">Overview</div>
+        <div class="topbar-actions">
+          <div class="search"><span>🔍</span><input type="text" placeholder="Search transactions…" /></div>
+          <button class="icon-btn" id="themeToggleApp" aria-label="Toggle theme">🌙</button>
+          <button class="icon-btn notif" id="notifBtn" aria-label="Notifications">🔔<span class="dot"></span></button>
+        </div>
+      </div>
+
+      <!-- OVERVIEW -->
+      <section class="view active" id="view-overview">
+        <div class="kpi-row" id="kpiRow"></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h3>Spending vs Income</h3><span class="muted">Last 6 months</span></div>
+            <canvas id="chartIncomeSpend" height="120"></canvas>
+          </div>
+          <div class="card health-card">
+            <div class="card-head"><h3>Financial Health Score</h3></div>
+            <div class="health-body">
+              <div class="ring big" data-score="78"><span id="healthScore">78</span></div>
+              <ul class="health-breakdown" id="healthBreakdown"></ul>
+            </div>
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-head"><h3>Spending by category</h3></div>
+            <canvas id="chartCategory" height="200"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Monthly trend</h3></div>
+            <canvas id="chartTrend" height="200"></canvas>
+          </div>
+          <div class="card insights-card">
+            <div class="card-head"><h3>AI insights</h3><span class="badge">live</span></div>
+            <ul class="insights" id="insightsList"></ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Spending heatmap</h3><span class="muted">Intensity by day</span></div>
+          <div class="heatmap" id="heatmap"></div>
+        </div>
+      </section>
+
+      <!-- EXPENSES -->
+      <section class="view" id="view-expenses">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h3>Add expense</h3><span class="muted">Auto-categorized by NLP</span></div>
+            <form class="add-form" id="addForm">
+              <input type="text" id="exDesc" placeholder="e.g. Swiggy dinner order" required />
+              <input type="number" id="exAmt" placeholder="Amount ₹" min="1" required />
+              <select id="exCat">
+                <option value="auto">🤖 Auto-detect</option>
+                <option>Food</option><option>Travel</option><option>Shopping</option>
+                <option>Bills</option><option>Healthcare</option><option>Entertainment</option>
+                <option>Education</option><option>Investments</option><option>Others</option>
+              </select>
+              <button class="btn btn-primary" type="submit">Add</button>
+            </form>
+            <p class="hint" id="nlpHint"></p>
+            <div class="import-row">
+              <label class="btn btn-outline" for="csvInput">📎 Import CSV / Excel</label>
+              <input type="file" id="csvInput" accept=".csv,.xlsx,.xlsm" hidden />
+              <button class="btn btn-outline" type="button" id="voiceBtn">🎤 Voice entry</button>
+              <label class="btn btn-outline" for="receiptInput">📷 Scan receipt</label>
+              <input type="file" id="receiptInput" accept="image/*" hidden />
+            </div>
+            <p class="hint" id="smartHint"></p>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Anomaly &amp; duplicate radar</h3></div>
+            <ul class="anomaly-list" id="anomalyList"></ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <h3>Transactions</h3>
+            <div class="filters" id="catFilters"></div>
+          </div>
+          <div class="table-wrap">
+            <table class="tx-table">
+              <thead><tr><th>Date</th><th>Description</th><th>Category</th><th class="r">Amount</th><th></th></tr></thead>
+              <tbody id="txBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- FORECAST -->
+      <section class="view" id="view-forecast">
+        <div class="scenario-tabs" id="scenarioTabs">
+          <button class="chip active" data-plan="conservative">Conservative</button>
+          <button class="chip" data-plan="balanced">Balanced</button>
+          <button class="chip" data-plan="aggressive">Aggressive</button>
+        </div>
+        <div class="kpi-row" id="forecastKpis"></div>
+        <div class="card">
+          <div class="card-head"><h3>Savings projection</h3><span class="muted">12-month forecast with confidence range</span></div>
+          <canvas id="chartForecast" height="110"></canvas>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h3>Recommendations</h3><span class="badge">est. ₹/mo saved</span></div>
+            <ul class="rec-list" id="recList"></ul>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Cash flow forecast</h3></div>
+            <canvas id="chartCashflow" height="160"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- INVEST -->
+      <section class="view" id="view-invest">
+        <div class="card risk-card">
+          <div class="card-head"><h3>Risk tolerance</h3><span class="muted">Drag to re-balance the portfolio</span></div>
+          <div class="risk-control">
+            <input type="range" id="riskSlider" min="1" max="5" value="3" />
+            <div class="risk-labels"><span>Safe</span><span>Balanced</span><span>Growth</span></div>
+            <div class="risk-readout" id="riskReadout">Balanced</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h3>Recommended allocation</h3></div>
+            <canvas id="chartAllocation" height="220"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>10-year growth simulation</h3><span class="muted">Compounded, illustrative</span></div>
+            <canvas id="chartGrowth" height="220"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Allocation detail</h3></div>
+          <div class="alloc-grid" id="allocGrid"></div>
+          <p class="disclaimer">⚠️ Educational simulation only — not guaranteed financial advice.</p>
+        </div>
+      </section>
+
+      <!-- GOALS -->
+      <section class="view" id="view-goals">
+        <div class="card">
+          <div class="card-head"><h3>Create a goal</h3></div>
+          <form class="goal-form" id="goalForm">
+            <input type="text" id="goalName" placeholder="Goal name (e.g. New laptop)" required />
+            <input type="number" id="goalTarget" placeholder="Target ₹" min="1000" required />
+            <input type="number" id="goalSaved" placeholder="Saved so far ₹" min="0" value="0" />
+            <input type="number" id="goalMonthly" placeholder="Monthly ₹" min="100" required />
+            <button class="btn btn-primary" type="submit">Add goal</button>
+          </form>
+        </div>
+        <div class="goals-grid" id="goalsGrid"></div>
+      </section>
+
+      <!-- BUDGET -->
+      <section class="view" id="view-budget">
+        <div id="budgetKpis" class="kpi-row"></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h3>50 / 30 / 20 plan</h3><span class="muted">Needs · Wants · Savings</span></div>
+            <canvas id="chartBudgetSplit" height="220"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Recommended vs current</h3><span class="muted">per category</span></div>
+            <canvas id="chartBudgetBars" height="220"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>AI-generated budget</h3><span class="muted">adapts to your spending</span></div>
+          <table class="tx-table">
+            <thead><tr><th>Category</th><th>Bucket</th><th class="r">Current/mo</th><th class="r">Recommended</th><th class="r">Change</th></tr></thead>
+            <tbody id="budgetBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SIMULATOR -->
+      <section class="view" id="view-simulator">
+        <div class="sim-tabs">
+          <button class="chip active" data-sim="savings">Savings Simulator</button>
+          <button class="chip" data-sim="whatif">What-If Scenarios</button>
+        </div>
+
+        <div id="sim-savings" class="sim-panel">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Adjust spending</h3><span class="muted">drag to cut categories</span></div>
+              <div id="simSliders"></div>
+              <label class="sim-extra">Extra investment / month
+                <input type="number" id="simExtra" min="0" step="500" value="0" placeholder="₹0" />
+              </label>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3>Projected impact</h3></div>
+              <div id="simResult" class="sim-result"></div>
+              <canvas id="chartSimProjection" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div id="sim-whatif" class="sim-panel hidden">
+          <div class="card">
+            <div class="card-head"><h3>Ask a what-if question</h3></div>
+            <div class="whatif-grid" id="whatifButtons"></div>
+          </div>
+          <div class="card" id="whatifResultCard" style="display:none">
+            <div class="card-head"><h3 id="whatifTitle">Result</h3></div>
+            <div id="whatifResult" class="sim-result"></div>
+            <canvas id="chartWhatIf" height="200"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- NET WORTH -->
+      <section class="view" id="view-networth">
+        <div id="networthKpis" class="kpi-row"></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h3>Assets vs liabilities</h3></div>
+            <canvas id="chartNetworth" height="220"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>5-year net-worth projection</h3><span class="muted">illustrative</span></div>
+            <canvas id="chartNetworthProj" height="220"></canvas>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h3>Assets</h3></div>
+            <form class="nw-form" id="assetForm">
+              <input type="text" id="assetName" placeholder="Name" required />
+              <select id="assetKind"><option value="cash">Cash</option><option value="investment">Investment</option><option value="property">Property</option><option value="gold">Gold</option><option value="other">Other</option></select>
+              <input type="number" id="assetValue" placeholder="Value ₹" min="0" required />
+              <button class="btn btn-primary" type="submit">Add</button>
+            </form>
+            <ul class="nw-list" id="assetList"></ul>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Liabilities</h3></div>
+            <form class="nw-form" id="liabForm">
+              <input type="text" id="liabName" placeholder="Name" required />
+              <input type="number" id="liabBalance" placeholder="Balance ₹" min="0" required />
+              <input type="number" id="liabPay" placeholder="EMI/mo ₹" min="0" value="0" />
+              <button class="btn btn-primary" type="submit">Add</button>
+            </form>
+            <ul class="nw-list" id="liabList"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SUBSCRIPTIONS -->
+      <section class="view" id="view-subscriptions">
+        <div id="subsKpis" class="kpi-row"></div>
+        <div class="card">
+          <div class="card-head"><h3>Detected subscriptions & recurring payments</h3><span class="muted">review & cancel the unused</span></div>
+          <table class="tx-table">
+            <thead><tr><th>Service</th><th>Category</th><th>Cadence</th><th class="r">Amount</th><th class="r">Monthly</th><th class="r">Yearly</th></tr></thead>
+            <tbody id="subsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- REPORTS -->
+      <section class="view" id="view-reports">
+        <div class="card">
+          <div class="card-head"><h3>AI-generated financial report</h3></div>
+          <p class="muted">A polished summary of your income, spending, subscriptions, health score and recommendations — export it to share or archive.</p>
+          <div class="report-actions">
+            <button class="btn btn-primary" id="dlPdf">⬇️ Download PDF</button>
+            <button class="btn btn-ghost" id="dlExcel">⬇️ Download Excel</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Report preview</h3></div>
+          <div id="reportPreview" class="report-preview"></div>
+        </div>
+      </section>
+
+      <!-- PLANNER -->
+      <section class="view" id="view-planner">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h3>🚨 Emergency fund planner</h3><span class="muted">6× monthly spend</span></div>
+            <div id="emergencyBody" class="sim-result"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>🪙 Round-up savings</h3><span class="muted">spare change to nearest ₹100</span></div>
+            <div id="roundupBody" class="sim-result"></div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h3>🧩 Diversification analyzer</h3></div>
+            <canvas id="chartDiversify" height="180"></canvas>
+            <ul class="insights" id="diversifyList"></ul>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>🌱 Sustainability</h3><span class="muted">carbon footprint of spending</span></div>
+            <div id="carbonKpis" class="sim-result"></div>
+            <ul class="insights" id="carbonList"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- PORTFOLIO LAB -->
+      <section class="view" id="view-lab">
+        <div class="card">
+          <div class="card-head"><h3>🎲 Monte Carlo portfolio simulator</h3><span class="muted">500 market scenarios · inflation-adjusted</span></div>
+          <form class="add-form" id="mcForm">
+            <input type="number" id="mcMonthly" placeholder="Monthly investment ₹" value="5000" min="0" />
+            <input type="number" id="mcYears" placeholder="Years" value="10" min="1" max="40" />
+            <select id="mcRisk">
+              <option value="1">Risk 1 · Very safe</option><option value="2">Risk 2 · Conservative</option>
+              <option value="3" selected>Risk 3 · Balanced</option><option value="4">Risk 4 · Growth</option>
+              <option value="5">Risk 5 · Aggressive</option>
+            </select>
+            <button class="btn btn-primary" type="submit">Simulate</button>
+          </form>
+          <div id="mcResult" class="sim-result"></div>
+          <canvas id="chartMonteCarlo" height="110"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>🧭 Risk profile questionnaire</h3><span class="muted">sets your risk tolerance across the app</span></div>
+          <div id="quizBody"></div>
+          <button class="btn btn-primary" id="quizSubmit">Get my risk profile</button>
+          <p class="hint" id="quizResult"></p>
+        </div>
+      </section>
+
+      <!-- FINANCIAL TWIN -->
+      <section class="view" id="view-twin">
+        <div class="card">
+          <div class="card-head"><h3>👤 Financial Twin</h3><span class="muted">simulate big life decisions on your real finances</span></div>
+          <div class="whatif-grid" id="twinButtons"></div>
+        </div>
+        <div class="card" id="twinResultCard" style="display:none">
+          <div class="card-head"><h3 id="twinTitle">Result</h3></div>
+          <div id="twinResult" class="sim-result"></div>
+        </div>
+      </section>
+
+      <!-- ACHIEVEMENTS -->
+      <section class="view" id="view-achievements">
+        <div id="gameKpis" class="kpi-row"></div>
+        <div class="card">
+          <div class="card-head"><h3>🏅 Badges</h3><span class="muted" id="badgeCount"></span></div>
+          <div class="badge-grid" id="badgeGrid"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>⚔️ Weekly challenge</h3></div>
+          <div id="challengeBody" class="sim-result"></div>
+        </div>
+      </section>
+
+      <!-- ASSISTANT -->
+      <section class="view" id="view-assistant">
+        <div class="card chat-card">
+          <div class="card-head"><h3>🤖 FinTract Assistant</h3><span class="badge">beta</span></div>
+          <div class="chat-log" id="chatLog"></div>
+          <div class="chat-suggestions" id="chatSuggestions"></div>
+          <form class="chat-input" id="chatForm">
+            <input type="text" id="chatText" placeholder="Ask about your finances…" autocomplete="off" />
+            <button class="btn btn-primary" type="submit">Send</button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- toast -->
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
