@@ -21,10 +21,10 @@ services:
       timeout: 3s
       retries: 10
 
-  backend:
+  app:
     build:
       context: .
-      dockerfile: backend/Dockerfile
+      dockerfile: Dockerfile
     environment:
       DATABASE_URL: postgresql+psycopg2://fintract:fintract@db:5432/fintract
       REDIS_URL: redis://redis:6379/0
