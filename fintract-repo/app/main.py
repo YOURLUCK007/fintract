@@ -75,7 +75,7 @@ for r in (auth, expenses, analytics, forecast, invest, goals, notifications, cha
 # Serve the front-end (single-origin deployment). Mounted last so /api and /ws win.
 _FRONTEND_DIR = os.getenv(
     "FRONTEND_DIR",
-    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend")),
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static")),
 )
 if os.path.isdir(_FRONTEND_DIR):
     app.mount("/", StaticFiles(directory=_FRONTEND_DIR, html=True), name="frontend")

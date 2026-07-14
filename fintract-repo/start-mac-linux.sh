@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # FinTract - one-click launcher for macOS / Linux
-# Run:  bash start-mac-linux.sh   (from inside the extracted fintract folder)
+# Run:  bash start-mac-linux.sh   (from the fintract folder)
 set -e
-cd "$(dirname "$0")/backend"
+cd "$(dirname "$0")"
 
 echo ""
 echo "==== FinTract setup ===="
@@ -13,7 +13,6 @@ if ! command -v python3 >/dev/null 2>&1; then
 fi
 
 [ -d .venv ] || { echo "Creating virtual environment..."; python3 -m venv .venv; }
-# shellcheck disable=SC1091
 source .venv/bin/activate
 echo "Installing dependencies (first run only)..."
 python -m pip install --upgrade pip >/dev/null

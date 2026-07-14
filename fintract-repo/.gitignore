@@ -1,18 +1,11 @@
-.DS_Store
-node_modules/
-*.log
-.vscode/
-.idea/
-
-# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+.env
+*.db
+*.sqlite3
 .venv/
 venv/
-.pytest_cache/
-.env
-
-# App artifacts
-backend/fintract.db
-*.sqlite3
-backend/app/ml/artifacts/
+app/ml/artifacts/*.pkl
+app/ml/artifacts/*.joblib
+fintract.db
