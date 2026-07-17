@@ -62,7 +62,7 @@
       setToken(data.access_token);
       return data.user;
     },
-    resendVerification: (email) => request("/api/auth/resend-verification", { method: "POST", body: null, auth: false }).catch(() => {}),
+    resendVerification: (email) => request(`/api/auth/resend-verification?email=${encodeURIComponent(email)}`, { method: "POST", auth: false }).catch(() => {}),
     me: () => request("/api/auth/me"),
     updateMe: (payload) => request("/api/auth/me", { method: "PATCH", body: payload }),
 
