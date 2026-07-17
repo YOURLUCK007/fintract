@@ -40,11 +40,12 @@ def get_db() -> Generator[Session, None, None]:
 
 
 _NEW_USER_COLUMNS = [
-    ("is_verified",            "BOOLEAN DEFAULT 0"),
+    # Use FALSE/TRUE (not 0/1) — works in both SQLite ≥3.23 and PostgreSQL.
+    ("is_verified",            "BOOLEAN DEFAULT FALSE"),
     ("verification_token",     "VARCHAR(64)"),
     ("stripe_customer_id",     "VARCHAR(64)"),
     ("stripe_subscription_id", "VARCHAR(64)"),
-    ("is_premium",             "BOOLEAN DEFAULT 0"),
+    ("is_premium",             "BOOLEAN DEFAULT FALSE"),
 ]
 
 
@@ -56,8 +57,9 @@ def _migrate_users_table() -> None:
                 conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_def}"))
                 conn.commit()
                 logger.info("Migration: added column users.%s", col_name)
-            except Exception:
-                # Column already exists — ignore
+            except Exception as exc:
+                # Column already exists (or another benign duplicate error) — ignore.
+                logger.debug("Migration skip users.%s: %s", col_name, exc)
                 conn.rollback()
 
 
