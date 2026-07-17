@@ -45,6 +45,12 @@
     // auth
     async register(payload) {
       const data = await request("/api/auth/register", { method: "POST", body: payload, auth: false });
+      // If email verification is required the server returns { message: "verification_sent" }
+      // instead of a token. Return a special marker so app.js can show the right UI.
+      if (data && data.message === "verification_sent") {
+        return { __verificationSent: true, email: data.email, devVerifyUrl: data.dev_verify_url || null };
+      }
+      // Demo account: server returns a token immediately
       setToken(data.access_token);
       return data.user;
     },
@@ -56,6 +62,7 @@
       setToken(data.access_token);
       return data.user;
     },
+    resendVerification: (email) => request("/api/auth/resend-verification", { method: "POST", body: null, auth: false }).catch(() => {}),
     me: () => request("/api/auth/me"),
     updateMe: (payload) => request("/api/auth/me", { method: "PATCH", body: payload }),
 
@@ -107,6 +114,10 @@
       return fetch(url, { headers: { Authorization: `Bearer ${getToken()}` } })
         .then((r) => { if (!r.ok) throw new Error("Export failed"); return r.blob(); });
     },
+
+    // payments / Stripe
+    createCheckout: () => request("/api/payments/create-checkout", { method: "POST" }),
+    subscriptionStatus: () => request("/api/payments/status"),
 
     connectWs(onMessage) {
       const token = getToken();

@@ -31,6 +31,28 @@ class Settings(BaseSettings):
     # Base monthly income used for demo seeding (INR)
     default_currency: str = "INR"
 
+    # ── Email / SMTP ──────────────────────────────────────────────────────────
+    # Leave smtp_host blank to disable email sending (dev mode).
+    # Gmail example: host=smtp.gmail.com, port=587, user=you@gmail.com,
+    #   password=<App Password> (not your real password — use an App Password)
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from_address: str = "noreply@fintract.app"
+
+    # Public base URL for verification links (no trailing slash).
+    # In production set this to your real domain: https://fintract.app
+    app_base_url: str = "http://localhost:8000"
+
+    # ── Stripe ───────────────────────────────────────────────────────────────
+    # Get keys from https://dashboard.stripe.com/apikeys
+    stripe_secret_key: str = ""
+    stripe_publishable_key: str = ""
+    stripe_webhook_secret: str = ""
+    # Price ID for the FinTract Pro monthly plan (create in Stripe dashboard)
+    stripe_pro_price_id: str = ""
+
     @property
     def cors_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

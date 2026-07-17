@@ -20,6 +20,7 @@ from .routers import (
     invest,
     networth,
     notifications,
+    payments,
     planner,
     reports,
     simulate,
@@ -69,7 +70,7 @@ def health() -> dict:
 
 
 for r in (auth, expenses, analytics, forecast, invest, goals, notifications, chat,
-          budget, subscriptions, networth, simulate, reports, planner, ws):
+          budget, subscriptions, networth, simulate, reports, planner, payments, ws):
     app.include_router(r.router)
 
 # Serve the front-end (single-origin deployment). Mounted last so /api and /ws win.

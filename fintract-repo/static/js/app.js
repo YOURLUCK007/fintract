@@ -76,28 +76,58 @@
   const authError = (msg) => { const el = $("#authError"); el.textContent = msg; el.classList.remove("hidden"); };
 
   $("#authForm").onsubmit = async (e) => {
-    e.preventDefault();
-    $("#authError").classList.add("hidden");
-    $("#authSubmit").textContent = "Please wait…";
-    try {
-      let user;
-      if (signupMode) {
-        user = await API.register({
-          email: $("#authEmail").value.trim(),
-          password: $("#authPassword").value,
-          full_name: $("#authName").value.trim(),
-          monthly_income: +$("#authIncome").value || 95000,
-          risk_tolerance: +$("#authRisk").value || 3,
-        });
-      } else {
-        user = await API.login($("#authEmail").value.trim(), $("#authPassword").value);
+      e.preventDefault();
+      const errEl = $("#authError");
+      errEl.classList.add("hidden");
+      errEl.classList.remove("auth-success");
+      $("#authSubmit").textContent = "Please wait…";
+      try {
+        let user;
+        if (signupMode) {
+          const result = await API.register({
+            email: $("#authEmail").value.trim(),
+            password: $("#authPassword").value,
+            full_name: $("#authName").value.trim(),
+            monthly_income: +$("#authIncome").value || 95000,
+            risk_tolerance: +$("#authRisk").value || 3,
+          });
+          // Server requires email verification — show success, don't log in yet
+          if (result && result.__verificationSent) {
+            errEl.textContent = "✓ Account created! Check your inbox for a verification link before logging in.";
+            if (result.devVerifyUrl) {
+              errEl.textContent += " (Dev mode: no SMTP configured — verify URL logged to console.)";
+              console.info("[FinTract dev] Verify URL:", result.devVerifyUrl);
+            }
+            errEl.classList.add("auth-success");
+            errEl.classList.remove("hidden");
+            $("#authSubmit").textContent = "Create account";
+            setAuthMode(false);
+            return;
+          }
+          user = result;
+        } else {
+          user = await API.login($("#authEmail").value.trim(), $("#authPassword").value);
+        }
+        await launchApp(user);
+      } catch (err) {
+        const msg = err.message || "Something went wrong";
+        if (msg.toLowerCase().includes("verify your email")) {
+          const email = $("#authEmail").value.trim();
+          errEl.innerHTML = msg + ' <a href="#" id="resendLink" style="color:inherit;font-weight:700;text-decoration:underline">Resend link</a>';
+          errEl.classList.remove("hidden");
+          const rl = document.getElementById("resendLink");
+          if (rl) rl.onclick = async (ev) => {
+            ev.preventDefault();
+            rl.textContent = "Sending…";
+            await API.resendVerification(email).catch(() => {});
+            rl.textContent = "Sent!";
+          };
+        } else {
+          authError(msg);
+        }
+        $("#authSubmit").textContent = signupMode ? "Create account" : "Log in";
       }
-      await launchApp(user);
-    } catch (err) {
-      authError(err.message || "Something went wrong");
-      $("#authSubmit").textContent = signupMode ? "Create account" : "Log in";
-    }
-  };
+    };
 
   $("#authDemo").onclick = async () => {
     $("#authError").classList.add("hidden");
@@ -936,6 +966,20 @@
     showAuth();
   };
    
+
+  /* ---------- email-verified redirect ---------- */
+    (() => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("verified") === "1") {
+        window.history.replaceState({}, "", window.location.pathname);
+        setAuthMode(false);
+        showAuth();
+        const el = $("#authError");
+        el.textContent = "✓ Email verified! You can now log in.";
+        el.classList.add("auth-success");
+        el.classList.remove("hidden");
+      }
+    })();
 
   /* ---------- auto-login if token present ---------- */
   if (API.isAuthed()) {

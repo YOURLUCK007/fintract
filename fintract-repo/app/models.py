@@ -30,11 +30,18 @@ class User(Base):
     full_name: Mapped[str] = mapped_column(String(255), default="")
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    # Email verification — accounts are locked until the user clicks the link
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    verification_token: Mapped[str | None] = mapped_column(String(64), nullable=True, unique=True, index=True)
 
     # Financial profile used by the ML/advisor layer
     monthly_income: Mapped[float] = mapped_column(Float, default=95000.0)
     risk_tolerance: Mapped[int] = mapped_column(Integer, default=3)  # 1..5
     currency: Mapped[str] = mapped_column(String(8), default="INR")
+    # Stripe subscription (optional premium tier)
+    stripe_customer_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    stripe_subscription_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    is_premium: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
     expenses: Mapped[list["Expense"]] = relationship(back_populates="user", cascade="all, delete-orphan")

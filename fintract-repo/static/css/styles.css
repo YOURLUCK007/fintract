@@ -372,6 +372,7 @@ input[type="range"] { width: 100%; accent-color: var(--primary); }
 .auth-field input:focus, .auth-field select:focus { border-color: var(--primary); }
 .auth-row { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
 .auth-error { color: var(--danger); font-size: .85rem; margin: .2rem 0 .8rem; }
+.auth-error.auth-success { color: #22c55e; }
 .auth-submit-wrap { margin-top: .4rem; }
 .auth-switch { text-align: center; margin: 1rem 0 .8rem; font-size: .88rem; color: var(--text-dim); }
 .auth-switch a { color: var(--primary); font-weight: 600; }

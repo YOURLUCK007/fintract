@@ -1,10 +1,13 @@
 """SQLAlchemy engine, session factory and declarative base."""
 from collections.abc import Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from .config import settings
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 def _normalize_db_url(url: str) -> str:
@@ -36,8 +39,31 @@ def get_db() -> Generator[Session, None, None]:
         db.close()
 
 
+_NEW_USER_COLUMNS = [
+    ("is_verified",            "BOOLEAN DEFAULT 0"),
+    ("verification_token",     "VARCHAR(64)"),
+    ("stripe_customer_id",     "VARCHAR(64)"),
+    ("stripe_subscription_id", "VARCHAR(64)"),
+    ("is_premium",             "BOOLEAN DEFAULT 0"),
+]
+
+
+def _migrate_users_table() -> None:
+    """Add any missing columns to the users table (safe to run on every startup)."""
+    with engine.connect() as conn:
+        for col_name, col_def in _NEW_USER_COLUMNS:
+            try:
+                conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_def}"))
+                conn.commit()
+                logger.info("Migration: added column users.%s", col_name)
+            except Exception:
+                # Column already exists — ignore
+                conn.rollback()
+
+
 def init_db() -> None:
-    """Create all tables. Import models so they register on the metadata."""
+    """Create all tables and apply lightweight column migrations."""
     from . import models  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
+    _migrate_users_table()
