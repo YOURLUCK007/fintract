@@ -1,12 +1,20 @@
-"""Email delivery — sends transactional emails via SMTP or skips if unconfigured."""
-import smtplib
+"""Email delivery via Resend API (HTTPS — works on all hosting platforms).
+
+Render and many other hosts block outbound SMTP ports (587/465).
+Resend sends over HTTPS so it works everywhere. Free tier: 3 000 emails/month.
+Sign up at https://resend.com → API Keys → create a key → set RESEND_API_KEY.
+
+If RESEND_API_KEY is not set the function returns False and logs the verify
+URL so developers can still test the flow locally without any email setup.
+"""
 import logging
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import httpx
 
 from .config import settings
 
 logger = logging.getLogger(__name__)
+
+RESEND_SEND_URL = "https://api.resend.com/emails"
 
 
 def _build_verification_html(verify_url: str) -> str:
@@ -44,44 +52,40 @@ def _build_verification_html(verify_url: str) -> str:
 
 
 def send_verification_email(to_email: str, token: str) -> bool:
-    """Send a verification email.  Returns True if sent, False if SMTP is not configured."""
-    if not settings.smtp_host or not settings.smtp_user:
+    """Send a verification email via Resend. Returns True on success, False otherwise."""
+    if not settings.resend_api_key:
         logger.warning(
-            "SMTP not configured — skipping verification email for %s. "
-            "Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD in .env",
+            "RESEND_API_KEY not set — skipping email for %s. "
+            "Sign up at resend.com and set RESEND_API_KEY to enable emails.",
             to_email,
         )
         return False
 
     verify_url = f"{settings.app_base_url}/api/auth/verify/{token}"
 
-    # Gmail requires the From address to match the authenticated account.
-    # Use smtp_user as the sender; fall back to smtp_from_address only if
-    # smtp_user is not set (which is already guarded above).
-    sender = settings.smtp_user or settings.smtp_from_address
-
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = "Verify your FinTract account"
-    msg["From"] = f"FinTract <{sender}>"
-    msg["To"] = to_email
-    msg.attach(MIMEText(_build_verification_html(verify_url), "html"))
+    payload = {
+        "from": f"FinTract <{settings.resend_from_address}>",
+        "to": [to_email],
+        "subject": "Verify your FinTract account",
+        "html": _build_verification_html(verify_url),
+    }
 
     try:
-        with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=15) as srv:
-            srv.ehlo()
-            if settings.smtp_port != 465:
-                srv.starttls()
-                srv.ehlo()
-            srv.login(settings.smtp_user, settings.smtp_password)
-            srv.sendmail(sender, [to_email], msg.as_string())
-        logger.info("Verification email sent to %s via %s:%s", to_email, settings.smtp_host, settings.smtp_port)
-        return True
-    except smtplib.SMTPAuthenticationError as exc:
-        logger.error("SMTP authentication failed — check SMTP_USER and SMTP_PASSWORD: %s", exc)
-        return False
-    except smtplib.SMTPException as exc:
-        logger.error("SMTP error sending to %s: %s", to_email, exc)
-        return False
+        response = httpx.post(
+            RESEND_SEND_URL,
+            headers={"Authorization": f"Bearer {settings.resend_api_key}"},
+            json=payload,
+            timeout=15,
+        )
+        if response.status_code == 200 or response.status_code == 201:
+            logger.info("Verification email sent to %s (Resend)", to_email)
+            return True
+        else:
+            logger.error(
+                "Resend API error %s sending to %s: %s",
+                response.status_code, to_email, response.text,
+            )
+            return False
     except Exception as exc:
-        logger.error("Unexpected error sending verification email to %s: %s", to_email, exc)
+        logger.error("Failed to send verification email to %s: %s", to_email, exc)
         return False

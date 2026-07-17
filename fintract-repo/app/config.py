@@ -31,15 +31,14 @@ class Settings(BaseSettings):
     # Base monthly income used for demo seeding (INR)
     default_currency: str = "INR"
 
-    # ── Email / SMTP ──────────────────────────────────────────────────────────
-    # Leave smtp_host blank to disable email sending (dev mode).
-    # Gmail example: host=smtp.gmail.com, port=587, user=you@gmail.com,
-    #   password=<App Password> (not your real password — use an App Password)
-    smtp_host: str = ""
-    smtp_port: int = 587
-    smtp_user: str = ""
-    smtp_password: str = ""
-    smtp_from_address: str = "noreply@fintract.app"
+    # ── Email via Resend (HTTPS — works on Render and all other hosts) ────────
+    # Render blocks outbound SMTP, so we use Resend's HTTP API instead.
+    # Sign up free at https://resend.com → API Keys → create a key.
+    # Free tier: 3 000 emails / month.
+    resend_api_key: str = ""
+    # On Resend's free plan you must send from onboarding@resend.dev until
+    # you verify a custom domain. After adding your domain use your own address.
+    resend_from_address: str = "onboarding@resend.dev"
 
     # Public base URL for verification links (no trailing slash).
     # In production set this to your real domain: https://fintract.app
