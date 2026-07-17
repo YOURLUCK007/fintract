@@ -133,8 +133,28 @@
     $("#authError").classList.add("hidden");
     try {
       let user;
-      try { user = await API.login("demo@fintract.app", "demo1234"); }
-      catch { user = await API.register({ email: "demo@fintract.app", password: "demo1234", full_name: "Demo User", monthly_income: 95000, risk_tolerance: 3 }); }
+      try {
+        user = await API.login("demo@fintract.app", "demo1234");
+      } catch (loginErr) {
+        // If the demo account already exists but hasn't been verified yet
+        // (e.g. pre-migration state), try registering fresh. If that also
+        // fails because the email is taken, surface a clear message.
+        if (loginErr.message && loginErr.message.toLowerCase().includes("verify")) {
+          // Demo account exists but is locked — server migration should have
+          // fixed this on restart. Tell the user to reload.
+          authError("Demo account temporarily locked. Please hard-refresh the page (Ctrl+Shift+R) and try again.");
+          return;
+        }
+        // Account doesn't exist yet — create it.
+        const result = await API.register({ email: "demo@fintract.app", password: "demo1234", full_name: "Demo User", monthly_income: 95000, risk_tolerance: 3 });
+        // A freshly registered demo account returns a token immediately (auto-verified by the server).
+        if (result && result.__verificationSent) {
+          authError("Demo account set up — please hard-refresh the page (Ctrl+Shift+R) and try again.");
+          return;
+        }
+        user = result;
+      }
+      if (!user) { authError("Could not load demo account. Please refresh and try again."); return; }
       await launchApp(user);
     } catch (err) { authError(err.message); }
   };

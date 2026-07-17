@@ -63,9 +63,31 @@ def _migrate_users_table() -> None:
                 conn.rollback()
 
 
+def _trust_preexisting_users() -> None:
+    """Auto-verify accounts that existed before the verification system was added.
+
+    Pre-existing rows have verification_token = NULL (no default was set) AND
+    is_verified = FALSE (set by the DEFAULT FALSE migration).  New unverified
+    accounts always have a non-NULL token, so this UPDATE only touches the old rows.
+    Safe to run on every startup — once a row is set to TRUE it stays TRUE.
+    """
+    with engine.connect() as conn:
+        try:
+            result = conn.execute(
+                text("UPDATE users SET is_verified = TRUE WHERE verification_token IS NULL AND is_verified = FALSE")
+            )
+            conn.commit()
+            if result.rowcount:
+                logger.info("Migration: auto-verified %d pre-existing user(s)", result.rowcount)
+        except Exception as exc:
+            logger.warning("Migration: could not auto-verify pre-existing users: %s", exc)
+            conn.rollback()
+
+
 def init_db() -> None:
     """Create all tables and apply lightweight column migrations."""
     from . import models  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
     _migrate_users_table()
+    _trust_preexisting_users()
