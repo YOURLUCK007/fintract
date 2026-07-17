@@ -93,10 +93,12 @@
           });
           // Server requires email verification — show success, don't log in yet
           if (result && result.__verificationSent) {
-            errEl.textContent = "✓ Account created! Check your inbox for a verification link before logging in.";
             if (result.devVerifyUrl) {
-              errEl.textContent += " (Dev mode: no SMTP configured — verify URL logged to console.)";
-              console.info("[FinTract dev] Verify URL:", result.devVerifyUrl);
+              // Email couldn't be sent — show the link directly on screen so the user can click it
+              errEl.innerHTML = '✓ Account created! <strong>Email delivery unavailable</strong> — click below to verify instantly:<br/><br/>'
+                + `<a href="${result.devVerifyUrl}" style="color:#6c8cff;font-weight:700;word-break:break-all;">Click here to verify your account →</a>`;
+            } else {
+              errEl.textContent = "✓ Account created! Check your inbox for a verification link before logging in.";
             }
             errEl.classList.add("auth-success");
             errEl.classList.remove("hidden");
