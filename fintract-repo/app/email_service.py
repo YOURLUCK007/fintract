@@ -55,21 +55,33 @@ def send_verification_email(to_email: str, token: str) -> bool:
 
     verify_url = f"{settings.app_base_url}/api/auth/verify/{token}"
 
+    # Gmail requires the From address to match the authenticated account.
+    # Use smtp_user as the sender; fall back to smtp_from_address only if
+    # smtp_user is not set (which is already guarded above).
+    sender = settings.smtp_user or settings.smtp_from_address
+
     msg = MIMEMultipart("alternative")
     msg["Subject"] = "Verify your FinTract account"
-    msg["From"] = settings.smtp_from_address
+    msg["From"] = f"FinTract <{sender}>"
     msg["To"] = to_email
     msg.attach(MIMEText(_build_verification_html(verify_url), "html"))
 
     try:
-        with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=10) as srv:
+        with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=15) as srv:
             srv.ehlo()
             if settings.smtp_port != 465:
                 srv.starttls()
+                srv.ehlo()
             srv.login(settings.smtp_user, settings.smtp_password)
-            srv.sendmail(settings.smtp_from_address, [to_email], msg.as_string())
-        logger.info("Verification email sent to %s", to_email)
+            srv.sendmail(sender, [to_email], msg.as_string())
+        logger.info("Verification email sent to %s via %s:%s", to_email, settings.smtp_host, settings.smtp_port)
         return True
+    except smtplib.SMTPAuthenticationError as exc:
+        logger.error("SMTP authentication failed — check SMTP_USER and SMTP_PASSWORD: %s", exc)
+        return False
+    except smtplib.SMTPException as exc:
+        logger.error("SMTP error sending to %s: %s", to_email, exc)
+        return False
     except Exception as exc:
-        logger.error("Failed to send verification email to %s: %s", to_email, exc)
+        logger.error("Unexpected error sending verification email to %s: %s", to_email, exc)
         return False
