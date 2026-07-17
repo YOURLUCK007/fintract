@@ -31,14 +31,13 @@ class Settings(BaseSettings):
     # Base monthly income used for demo seeding (INR)
     default_currency: str = "INR"
 
-    # ── Email via Resend (HTTPS — works on Render and all other hosts) ────────
-    # Render blocks outbound SMTP, so we use Resend's HTTP API instead.
-    # Sign up free at https://resend.com → API Keys → create a key.
-    # Free tier: 3 000 emails / month.
-    resend_api_key: str = ""
-    # On Resend's free plan you must send from onboarding@resend.dev until
-    # you verify a custom domain. After adding your domain use your own address.
-    resend_from_address: str = "onboarding@resend.dev"
+    # ── Email via Brevo (HTTPS — free, no domain needed) ─────────────────────
+    # Render blocks outbound SMTP, so we use Brevo's HTTP API instead.
+    # Sign up free at https://brevo.com (300 emails/day free).
+    # Verify your sender email under Senders & IP → Senders, then get an
+    # API key from profile menu → SMTP & API → API Keys.
+    brevo_api_key: str = ""
+    brevo_from_email: str = ""  # must match a verified sender in your Brevo account
 
     # Public base URL for verification links (no trailing slash).
     # In production set this to your real domain: https://fintract.app

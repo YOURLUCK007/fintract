@@ -1,11 +1,12 @@
-"""Email delivery via Resend API (HTTPS — works on all hosting platforms).
+"""Email delivery via Brevo (formerly Sendinblue) HTTP API.
 
-Render and many other hosts block outbound SMTP ports (587/465).
-Resend sends over HTTPS so it works everywhere. Free tier: 3 000 emails/month.
-Sign up at https://resend.com → API Keys → create a key → set RESEND_API_KEY.
+Free plan: 300 emails/day, no domain ownership required — just verify
+your sender email address at app.brevo.com → Senders & IP → Senders.
 
-If RESEND_API_KEY is not set the function returns False and logs the verify
-URL so developers can still test the flow locally without any email setup.
+Sign up free at https://brevo.com, then:
+  1. Add & verify your sender email under Senders & IP → Senders
+  2. Create an API key under profile menu → SMTP & API → API Keys
+  3. Set BREVO_API_KEY and BREVO_FROM_EMAIL in your environment.
 """
 import logging
 import httpx
@@ -14,7 +15,7 @@ from .config import settings
 
 logger = logging.getLogger(__name__)
 
-RESEND_SEND_URL = "https://api.resend.com/emails"
+BREVO_SEND_URL = "https://api.brevo.com/v3/smtp/email"
 
 
 def _build_verification_html(verify_url: str) -> str:
@@ -52,11 +53,11 @@ def _build_verification_html(verify_url: str) -> str:
 
 
 def send_verification_email(to_email: str, token: str) -> bool:
-    """Send a verification email via Resend. Returns True on success, False otherwise."""
-    if not settings.resend_api_key:
+    """Send a verification email via Brevo. Returns True on success, False otherwise."""
+    if not settings.brevo_api_key:
         logger.warning(
-            "RESEND_API_KEY not set — skipping email for %s. "
-            "Sign up at resend.com and set RESEND_API_KEY to enable emails.",
+            "BREVO_API_KEY not set — skipping email for %s. "
+            "Sign up free at brevo.com and set BREVO_API_KEY to enable emails.",
             to_email,
         )
         return False
@@ -64,25 +65,32 @@ def send_verification_email(to_email: str, token: str) -> bool:
     verify_url = f"{settings.app_base_url}/api/auth/verify/{token}"
 
     payload = {
-        "from": f"FinTract <{settings.resend_from_address}>",
-        "to": [to_email],
+        "sender": {
+            "name": "FinTract",
+            "email": settings.brevo_from_email,
+        },
+        "to": [{"email": to_email}],
         "subject": "Verify your FinTract account",
-        "html": _build_verification_html(verify_url),
+        "htmlContent": _build_verification_html(verify_url),
     }
 
     try:
         response = httpx.post(
-            RESEND_SEND_URL,
-            headers={"Authorization": f"Bearer {settings.resend_api_key}"},
+            BREVO_SEND_URL,
+            headers={
+                "accept": "application/json",
+                "api-key": settings.brevo_api_key,
+                "content-type": "application/json",
+            },
             json=payload,
             timeout=15,
         )
-        if response.status_code == 200 or response.status_code == 201:
-            logger.info("Verification email sent to %s (Resend)", to_email)
+        if response.status_code in (200, 201):
+            logger.info("Verification email sent to %s (Brevo)", to_email)
             return True
         else:
             logger.error(
-                "Resend API error %s sending to %s: %s",
+                "Brevo API error %s sending to %s: %s",
                 response.status_code, to_email, response.text,
             )
             return False
