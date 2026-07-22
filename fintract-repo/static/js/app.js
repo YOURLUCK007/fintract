@@ -947,6 +947,42 @@
   };
    
 
+  /* ---------- Firebase Google sign-in ---------- */
+  let _fbAuth = null;
+  fetch("/api/auth/firebase-config")
+    .then(r => r.json())
+    .then(cfg => {
+      if (!cfg.apiKey) return; // Firebase not configured — hide Google button
+      firebase.initializeApp(cfg);
+      _fbAuth = firebase.auth();
+    })
+    .catch(() => {
+      const btn = $("#authGoogle");
+      if (btn) btn.style.display = "none";
+    });
+
+  $("#authGoogle").onclick = async () => {
+    if (!_fbAuth) { authError("Google sign-in not available. Please try again in a moment."); return; }
+    const btn = $("#authGoogle");
+    const origText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = btn.innerHTML.replace("Continue with Google", "Opening Google…");
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      const result = await _fbAuth.signInWithPopup(provider);
+      const idToken = await result.user.getIdToken();
+      const user = await API.googleAuth(idToken);
+      await launchApp(user);
+    } catch (err) {
+      if (err.code !== "auth/popup-closed-by-user") {
+        authError(err.message || "Google sign-in failed. Please try again.");
+      }
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = origText;
+    }
+  };
+
   /* ---------- auto-login if token present ---------- */
   if (API.isAuthed()) {
     // Keep user on landing but let them click in instantly; optionally auto-enter.

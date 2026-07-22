@@ -43,6 +43,14 @@ class Settings(BaseSettings):
     # In production set this to your real domain: https://fintract.app
     app_base_url: str = "http://localhost:8000"
 
+    # ── Firebase / Google sign-in ────────────────────────────────────────────
+    google_api_key: str = ""            # GOOGLE_API_KEY env var (from Firebase console)
+    firebase_project_id: str = "ntract1"
+    firebase_auth_domain: str = "ntract1.firebaseapp.com"
+    firebase_storage_bucket: str = "ntract1.firebasestorage.app"
+    firebase_messaging_sender_id: str = "657981247827"
+    firebase_app_id: str = "1:657981247827:web:6e6bb1903ec9588e3551a6"
+
     # ── Stripe ───────────────────────────────────────────────────────────────
     # Get keys from https://dashboard.stripe.com/apikeys
     stripe_secret_key: str = ""

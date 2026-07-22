@@ -56,6 +56,11 @@
       setToken(data.access_token);
       return data.user;
     },
+    googleAuth: async (idToken) => {
+      const data = await request("/api/auth/google", { method: "POST", body: { id_token: idToken }, auth: false });
+      setToken(data.access_token);
+      return data.user;
+    },
     me: () => request("/api/auth/me"),
     updateMe: (payload) => request("/api/auth/me", { method: "PATCH", body: payload }),
 
