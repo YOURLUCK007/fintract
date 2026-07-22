@@ -91,21 +91,6 @@
             monthly_income: +$("#authIncome").value || 95000,
             risk_tolerance: +$("#authRisk").value || 3,
           });
-          // Server requires email verification — show success, don't log in yet
-          if (result && result.__verificationSent) {
-            if (result.devVerifyUrl) {
-              // Email couldn't be sent — show the link directly on screen so the user can click it
-              errEl.innerHTML = '✓ Account created! <strong>Email delivery unavailable</strong> — click below to verify instantly:<br/><br/>'
-                + `<a href="${result.devVerifyUrl}" style="color:#6c8cff;font-weight:700;word-break:break-all;">Click here to verify your account →</a>`;
-            } else {
-              errEl.textContent = "✓ Account created! Check your inbox for a verification link before logging in.";
-            }
-            errEl.classList.add("auth-success");
-            errEl.classList.remove("hidden");
-            $("#authSubmit").textContent = "Create account";
-            setAuthMode(false);
-            return;
-          }
           user = result;
         } else {
           user = await API.login($("#authEmail").value.trim(), $("#authPassword").value);
@@ -113,20 +98,7 @@
         await launchApp(user);
       } catch (err) {
         const msg = err.message || "Something went wrong";
-        if (msg.toLowerCase().includes("verify your email")) {
-          const email = $("#authEmail").value.trim();
-          errEl.innerHTML = msg + ' <a href="#" id="resendLink" style="color:inherit;font-weight:700;text-decoration:underline">Resend link</a>';
-          errEl.classList.remove("hidden");
-          const rl = document.getElementById("resendLink");
-          if (rl) rl.onclick = async (ev) => {
-            ev.preventDefault();
-            rl.textContent = "Sending…";
-            await API.resendVerification(email).catch(() => {});
-            rl.textContent = "Sent!";
-          };
-        } else {
-          authError(msg);
-        }
+        authError(msg);
         $("#authSubmit").textContent = signupMode ? "Create account" : "Log in";
       }
     };
@@ -138,22 +110,8 @@
       try {
         user = await API.login("demo@fintract.app", "demo1234");
       } catch (loginErr) {
-        // If the demo account already exists but hasn't been verified yet
-        // (e.g. pre-migration state), try registering fresh. If that also
-        // fails because the email is taken, surface a clear message.
-        if (loginErr.message && loginErr.message.toLowerCase().includes("verify")) {
-          // Demo account exists but is locked — server migration should have
-          // fixed this on restart. Tell the user to reload.
-          authError("Demo account temporarily locked. Please hard-refresh the page (Ctrl+Shift+R) and try again.");
-          return;
-        }
         // Account doesn't exist yet — create it.
         const result = await API.register({ email: "demo@fintract.app", password: "demo1234", full_name: "Demo User", monthly_income: 95000, risk_tolerance: 3 });
-        // A freshly registered demo account returns a token immediately (auto-verified by the server).
-        if (result && result.__verificationSent) {
-          authError("Demo account set up — please hard-refresh the page (Ctrl+Shift+R) and try again.");
-          return;
-        }
         user = result;
       }
       if (!user) { authError("Could not load demo account. Please refresh and try again."); return; }
@@ -988,20 +946,6 @@
     showAuth();
   };
    
-
-  /* ---------- email-verified redirect ---------- */
-    (() => {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("verified") === "1") {
-        window.history.replaceState({}, "", window.location.pathname);
-        setAuthMode(false);
-        showAuth();
-        const el = $("#authError");
-        el.textContent = "✓ Email verified! You can now log in.";
-        el.classList.add("auth-success");
-        el.classList.remove("hidden");
-      }
-    })();
 
   /* ---------- auto-login if token present ---------- */
   if (API.isAuthed()) {

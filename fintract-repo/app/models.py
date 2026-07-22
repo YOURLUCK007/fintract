@@ -30,8 +30,8 @@ class User(Base):
     full_name: Mapped[str] = mapped_column(String(255), default="")
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    # Email verification — accounts are locked until the user clicks the link
-    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Email verification disabled — all accounts are instantly active
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=True)
     verification_token: Mapped[str | None] = mapped_column(String(64), nullable=True, unique=True, index=True)
 
     # Financial profile used by the ML/advisor layer
