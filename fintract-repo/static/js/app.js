@@ -936,15 +936,21 @@
     catch (err) { typing.innerHTML = `⚠️ ${err.message}`; }
     $("#chatLog").scrollTop = $("#chatLog").scrollHeight;
   }
-    $("#logoutBtn").onclick = () => {
-    API.clearToken();
-    $("#app").classList.add("hidden");
-    $("#landing").classList.remove("hidden");
-    if (state.ws) { state.ws.close(); state.ws = null; }
-    state.user = null;
-    setAuthMode(false);
-    showAuth();
-  };
+    const performLogout = () => {
+      API.clearToken();
+      $("#app").classList.add("hidden");
+      $("#landing").classList.remove("hidden");
+      $("#sidebar").classList.remove("open");
+      if (state.ws) { state.ws.close(); state.ws = null; }
+      state.user = null;
+      setAuthMode(false);
+      showAuth();
+      toast("🚪 Logged out successfully");
+    };
+    const btnLogoutMain = $("#logoutBtn");
+    if (btnLogoutMain) btnLogoutMain.onclick = performLogout;
+    const btnLogoutTop = $("#logoutBtnTop");
+    if (btnLogoutTop) btnLogoutTop.onclick = performLogout;
    
 
   /* ---------- Firebase Google sign-in ---------- */
